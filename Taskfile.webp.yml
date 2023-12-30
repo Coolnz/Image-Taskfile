@@ -1,0 +1,51 @@
+---
+version: "3"
+
+tasks:
+  compress:
+    dir: "{{.USER_WORKING_DIR}}"
+    aliases: [c]
+    desc: Used to Compress WebP Images.
+    summary: |
+      task webp:compress
+      task webp:compress -- 90 // Specify Quality
+    vars:
+      QUALITY: "{{default 80 .CLI_ARGS}}"
+      FOLDER: "webp"
+    cmds:
+      - mkdir -p {{.FOLDER}}
+      - defer: mv *.webp ./{{.FOLDER}}
+      - for file in ./*.*; do cwebp -mt -q {{.QUALITY}} "$file" -o "${file%.*}.webp"; done
+    sources:
+      - ./*.png
+    generates:
+      - ./{{.FOLDER}}/*.webp
+
+  scale:
+    dir: "{{.USER_WORKING_DIR}}"
+    aliases: [s]
+    desc: Used to Compress WebP Images.
+    summary: |
+      task webp:scale
+      task webp:scale -- 2000 // Specify Scale
+      QUALITY=70 task webp:s -- 1000 // Specify Quality & Scale
+    vars:
+      WIDTH: "{{default 2000 .CLI_ARGS}}"
+      QUALITY: "{{default 80 .QUALITY}}"
+      FOLDER: "webp"
+    cmds:
+      - for file in ./*.*; do cwebp -q {{.QUALITY}} "$file" -o "${file%.*}.webp"; done
+      - mkdir -p {{.FOLDER}}
+      - mv *.webp ./{{.FOLDER}}
+    sources:
+      - ./*.png
+    generates:
+      - ./{{.FOLDER}}/*.webp
+
+  crop:
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Used to Crop WebP Images.
+    summary: |
+      task webp:crop -- 1000 1000
+    cmds:
+      - for file in ./*; do cwebp -mt -q 80 -crop 0 0 {{.CLI_ARGS}} "$file" -o "${file%.*}.webp"; done

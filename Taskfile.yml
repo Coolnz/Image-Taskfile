@@ -1,0 +1,37 @@
+---
+version: "3"
+
+env:
+  QUALITY: 80
+
+includes:
+  webp: ./Taskfile.webp.yml
+  gif: ./Taskfile.gif.yml
+
+tasks:
+  update:
+    desc: Update all installed dependencies
+    summary: |
+      task update
+    cmds:
+      - brew update
+      - brew upgrade
+      - brew cleanup
+
+  install:
+    desc: Install all dependencies using HomeBrew
+    summary: |
+      Must have Task installed (brew install go-task)
+      task setup
+    cmds:
+      - task: update
+      - brew install ffmpeg
+      - brew install imagemagick
+      - brew install webp
+
+  create:
+    desc: Creates a Taskfile.yml
+    summary: |
+      task create -- gif
+    cmds:
+      - echo --- > Taskfile.{{.CLI_ARGS}}.yml

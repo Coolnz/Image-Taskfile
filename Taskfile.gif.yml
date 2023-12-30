@@ -1,0 +1,31 @@
+---
+version: "3"
+
+tasks:
+  convert:
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Convert Animated PNGs to Gifs
+    summary: |
+      task gif:convert
+    cmds:
+      - for file in ./*.png; do ffmpeg -i "$file" -filter_complex "[0:v] scale=256:256, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse" "${file%.*}.gif"; done
+    sources:
+      - ./*.png
+    generates:
+      - ./*.gif
+
+  compress:
+    dir: "{{.USER_WORKING_DIR}}"
+    desc: Compress Gifs
+    summary: |
+      task gif:compress
+    vars:
+      FOLDER: "gif"
+    cmds:
+      - for file in ./*.gif; do convert "$file" -coalesce -fuzz 5% -layers Optimize +map "${file%.*}.min.gif"; done
+      - mkdir -p {{.FOLDER}}
+      - mv *.min.gif ./{{.FOLDER}}
+    sources:
+      - ./*.gif
+    generates:
+      - ./{{.FOLDER}}/*.min.gif
